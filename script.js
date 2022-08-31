@@ -1,3 +1,5 @@
+import selectionHandling from './selectionFun.js';
+
 const textArea = document.getElementById('textArea');
 const htmlArea = document.getElementById('htmlArea');
 

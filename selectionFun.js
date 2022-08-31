@@ -1,66 +1,78 @@
 function selectionHandling(){
     
-    let sel = document.getSelection().getRangeAt(0);
+    let selection = document.getSelection();
+    let sel = selection.getRangeAt(0);
+
+    console.log(sel.startContainer.parentNode);
+    console.log(sel.endContainer.parentNode);
+
+    checkForTags(sel);
+
+}
+
+function checkForTags(sel){
+
+    if(sel.startContainer.parentNode.nodeName === 'I' || sel.endContainer.parentNode.nodeName === 'I') return true;
+ 
     let rng = new Range();
-    let newNode = document.createElement('b');
 
     rng.setStart(sel.startContainer, sel.startOffset);
     rng.setEnd(sel.endContainer, sel.endOffset);
 
-    //The parents obj defines what the tag for the external nodes is and
-    //will define the behavior of the range at the end
-    let parents = {in: rng.startContainer.parentElement, out: rng.endContainer.parentElement};
+    let children = rng.extractContents().childNodes;
+    let newNode = document.createElement('i');
 
-    //RANGE ITERATION AND EXPANSION METHOD ACCORDING TO THE PARENT TAGS
+    rng.insertNode(internalCheck(children, newNode));
 
-    let nodes = rng.extractContents().childNodes;
-
-    //If there are no coinciding tags in the parent elements, we go through this function to add the tag
-    //And remove to inner elements
-    rng.insertNode(iterateRange(nodes));
 }
 
-function iterateRange(nodes){
-    console.log('Entering IterateRange', nodes);
-    let newNode = document.createElement('b');
 
-    let arr = Array.from(nodes);
+function internalCheck(children, newNode){
 
-    arr.forEach((node, i) => {
+    let arr = Array.from(children);
+
+    if(arr.length === 1){
+        newNode.appendChild(arr[0]);
+        return newNode;
+
+    }
+
+    console.log(arr);
+
+
+    for(let i = 0; i < arr.length; i++){
+
+        console.log(arr[i]);
         
-        console.log('Foreach in iterateRange', node.nodeName, i);
-        if(node.hasChildNodes()) node = iterateNode(node, i);
 
-        console.log('Append child', i, node);
-        newNode.appendChild(node);
-    });
+        if(arr[i].hasChildNodes()) {
+
+            if(arr[i].nodeName === 'I') {
+                console.log('got here to I');
+                newNode.appendChild(replaceNode(arr[i]));
+            }
+
+            internalCheck(arr[i].childNodes, newNode.childNodes[i]);
+        }else newNode.appendChild(arr[i]);
+        
+    }
+
+    console.log(newNode);
+
+    newNode.normalize();
 
     return newNode;
+
 }
 
-function iterateNode(node, i){
+function replaceNode(node){
 
-    console.log('IterateNode', i, node);
-
-    if(node.nodeName === 'B'){
-        node = isolateAndReplace(node);
-    }
-
-    console.log('IterateNode final Node return: ', node);
-    return node;
-}
-
-function isolateAndReplace(node){
-    console.log('IsolateAndReplace: ', node, node.firstChild);    
-    
+    console.log('The node I: ', node);
     let newNode = node.firstChild;
+    console.log('Replacing the node I: ', newNode);
+    return newNode;
 
-    while(newNode){
-        console.log('While newNode init', newNode);
-        node = newNode;
-        newNode = newNode.nextSibling;
-        console.log('While newNode follow', newNode, 'Node value', node);
-    }
-
-    return node;
 }
+
+
+export default selectionHandling;

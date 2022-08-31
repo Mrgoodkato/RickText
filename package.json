@@ -1,0 +1,22 @@
+{
+  "name": "ricktext",
+  "version": "1.0.0",
+  "description": "Rich Text Editor",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mrgoodkato/RickText.git"
+  },
+  "author": "Ricardo Chica",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mrgoodkato/RickText/issues"
+  },
+  "homepage": "https://github.com/Mrgoodkato/RickText#readme",
+  "devDependencies": {
+    "jest": "^29.0.1"
+  }
+}
