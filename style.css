@@ -1,0 +1,86 @@
+body{
+    font-family:'Open Sans', sans-serif;
+    background-color: rgb(40, 42, 53);
+}
+
+h1{
+    font-weight: 600;
+    line-height: 1px;
+    font-size: 5rem;
+    color: rgb(212, 177, 17);
+}
+h2{
+    font-weight: 300;
+    letter-spacing: 5.5px;
+    line-height: 1px;
+    font-size: 1.5rem;
+    padding-left: 6px;
+    color: wheat;
+}
+.main-container{
+    position: absolute;
+    width: 80%;
+    left: 10%;
+}
+
+.container{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+.nav-bar{
+    background-color: rgb(212, 177, 17);
+    border: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px; 
+}
+.button-style{
+    background-color: rgb(212, 177, 17);
+    border: 0px;
+    border-right: 1px dotted aliceblue;
+    color: aliceblue;
+    padding: 10px 20px;
+    margin: 5px 10px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.button-style:hover{
+    background-color: rgb(255, 123, 0);
+    border: 0px;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    border-radius: 10px;
+
+}
+
+.text-container{
+    width: auto; 
+    border: 1px solid rgb(155, 155, 155);
+    display: flex;
+    flex-direction: row;
+}
+
+.txt-area{
+    width: 50%;
+    background-color:rgb(179, 179, 179);
+    color: rgb(24, 26, 29);
+    padding: 25px 50px;
+    overflow: scroll;
+}
+.txt-area:focus{
+    outline: none;
+    background-color: beige;
+}
+.txt-area-html{
+    width: 35%; 
+    border: 1px solid beige;
+    background-color:rgb(24, 26, 29);
+    color: rgb(241, 190, 23);
+    padding: 50px;
+    border: 0px;
+    font-size: 0.7rem;
+    font-family: monospace;
+    overflow: auto;
+}

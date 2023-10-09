@@ -1,0 +1,147 @@
+For the manipulation of text inside HTML using JS in a div element with contenteditable enabled:
+
+The first thing to have into account is the use of
+document.getSelection() -> this gathers the selection properties, meaning, where the caret has been used in the document.
+document.getRangeAt(0) -> this gathers the range, meaning the anchor points (start end) of the selection, as well as the node information of that selection range.
+
+NOTE - we use 0 in the parameters of getRangeAt(0) because most browsers only support one range at a time.
+
+When gathering the range, we can get the position of the start and end by using the startContainer and endContainer to get the correct node where the content selected is.
+
+Then we use the startOffset and endOffset to check the exact position inside each node.
+
+///IMPORTANT NOTE////
+Remember that for nodes that are text - > startOffset and endOffset are taken as the character number to go from the start of the node:
+
+<p id="txt">Hola</p> -> Selecting for instance the "ol" part of this p tag text, we would use something like:
+
+let paragraph = document.getElementById('txt')
+let range = new Range();
+
+range.setStart(paragraph, 2); 
+range.setEnd(paragraph, 3);
+
+///-----setStart and setEnd work with two parameters (node, offset), these can be taken from an already gathered range or input manually
+
+window.getSelection().addRange(range);
+
+Now, for nodes that have other child nodes inside, the startOffset and endOffset are taken not as character counting but node counting:
+
+<p>Hola, <b>yo</b> soy el frailejón</p>
+
+If we take this example, and create a range to select the b tag only we can do so by counting it as the second in the offset:
+range.setStart(paragraph, 2);
+range.setEnd(paragraph, 3);
+
+This will select only the b tag inside the p tag children.
+Each part of the p tag children, each element or node is taken as a unit in the offset.
+
+
+
+NOTE REGARGING execCommand():
+When execCommand is called for instance to change style to bold or underline or italic, it basically creates a HTML tag surrouding the #text content selected in the range. However, when the #text content where the tag was located is selected again and the same style applied, what it does is that it creates a separate #text node where the original text was located. Like this:
+
+<p>Hola que tal</p> -> TRANSLATION INTO NODES <p>#text</p>
+
+Say we select the word "que" and apply execCommand to change it to bold:
+
+<p>Hola <b>que</b> tal</p> -> TRANSLATION INTO NODES <p>#text-bNode-#text</p>
+
+Then we select "que" again and apply bold again with execCommand:
+
+<p>Hola que tal</p> -> TRANSLATION INTO NODES <p>#text-#text-#text</p>
+
+Here the text has been separated like so: #text:"Hola ", #text:"que", #text:" tal".
+
+
+
+CREATION OF MANUAL STYLING FUNCTIONS
+If we are not using execCommand() as this is deprecated. We need to check for a way to simulate the behavior of this function in our code.
+
+Any of the main styling options for execCommand() will work in this excercise.
+
+Lets go with BOLD.
+To use BOLD, we need to wrap the selected range in a <b> tag, but we need to define some rules for when the function is called:
+
+Notes: To describe the range we will use: |content| <--- The text inside the | sign will represent the content inside the range.
+
+ADDING BOLD NODES
+1) If the range selected doesn't have a BOLD tag already affecting it. We will wrap the range with the BOLD tag. 
+
+    example:
+    A)  <p>Hola, yo soy el |frailejón|</p>
+        Here is a pretty straigthforward example of a range that should be wrapped.
+
+    B)  <p>Hola, yo <i>soy el |frailejón|</i></p>
+        Here is an example of a range inside another node, in this case an ITALIC node, valid for wrapping.
+    
+    C)  <p>I am |paragraph 1</p><p>I am paragraph| 2</p>
+        Here we selected 2 paragraphs, there can be more selected, in this case, we need to add the BOLD node to both paragraphs independently.
+
+    With this exception:
+    E1A) If the whole range is empty, we wont wrap.
+
+        example:
+        A)  <p>Hola que tal,|   |como estás?</p>
+            In this case, no text is selected, so adding a BOLD node would be innecesary.
+    
+    E1B) Any leading or ending spaces, wont be converted into a BOLD node either.
+
+        example:
+        A)  <p>Hola que tal,| cómo va la |vida?</p>
+            In this case, the range takes a leading and ending space in the string ' cómo va la '. Here we need to first remove both leading and ending spaces before creating the BOLD node and wrapping.
+
+REMOVING BOLD NODES
+2) If the range selected is already inside a BOLD node, we need to make the selection NOT BOLD. Removing the BOLD node and organizing the node structure.
+
+    Cases:
+    C2A) If the selection completely takes the BOLD node, meaning the range goes from the begining to end of the BOLD node, we remove the BOLD tag altogether:
+
+        example
+        A)  <p>And the crow said, <b>|nevermore|</b></p>
+            In this case, the range is selecting the whole contents of the BOLD node. So the BOLD node will be removed completely.
+
+    C2B) We need to check if the node of the text is not inside another style node that might be contained in another BOLD node:
+
+        example:
+        A)  <p>Hola que <b>tal, |como| estás?</b></p>
+            Note the range is already inside a BOLD node, so adding more BOLD nodes inside would be bad.
+
+        B)  <p>Hola que <b>tal, <i>como, o |COMO|</i> estás?</b></p>
+            Note the range is inside an ITALIC node, and that ITALIC node is inside an already created BOLD node. Another no no.
+
+INSERTING BOLD NODE IN COLLAPSED RANGE
+3) If the range is collapsed meaning it is only the caret positioned in the text, then that means the BOLD node will be applied to any text introduced from that moment into the textarea. Or, if the caret is inisde text, then that word or string will be converted to a BOLD node.
+
+    Cases:
+    C3A) The caret is positioned in an empty space of the textarea:
+
+        example
+        A)  <p>Hola, yo soy | </p>
+            In this case the caret is after the space after string 'soy'. From here all text typed will be inside a BOLD node.
+
+    C3B) The caret is positioned inside a word (it will only work when the caret is on a word equal or higher than 2 characters long):
+
+        example:
+        A)  <p>Hola, yo soy el fraile|jón</p>
+            In this case, the caret is positioned inside the string 'frailejón'. It will convert it into a BOLD node. 
+    
+REMOVING BOLD NODE IN COLLAPSED RANGE
+4) If the range is collapsed and the caret is positioned inside an already created BOLD node. We remove the BOLD node from the word the caret is inside of. However, if the caret is on an empty area, we will do nothing.
+
+    Cases:
+    C4A) The caret is positioned inside a word inside a BOLD node:
+
+        example
+        A)  <p>Soy la <b>noc|he</b></p>
+            Here we have the caret inside the word 'noche' which is inside a BOLD node, here we will remove the BOLD node.
+        
+        B)  <p>Soy la <b>noc|he y venganza</b></p>
+            Here we have the caret inside the word 'noche' again but it is part of a bigger BOLD node, so in this case only the word 'noche' will be removed from the BOLD node, leaving the rest of the string inside the BOLD node ' y venganza'.
+
+    Exception:
+    E4A) The caret is positioned inside an empty area tha is inside a BOLD node:
+
+        example:
+        A)  <p>Soy <b>la| noche</b></p>
+            Here the caret is inside an empty area after the word 'la', and inside a BOLD node. Here we don't do nothing.

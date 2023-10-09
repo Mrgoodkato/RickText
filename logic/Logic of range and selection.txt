@@ -1,0 +1,83 @@
+Definitions:
+
+SELECTION -> In the DOM, the selection is basically a unique mark where there is a range associated with it.
+
+    -You can take a selection as a species of container where a range or several ranges are located.
+    (However, for almost all browsers, except Firefox for now, the limit of ranges in a single document is only 1.)
+
+    Let's take this HTML content:
+    <p>Hello World</p>
+
+    If we select the word "Hello":
+    <p>|Hello| World</p>
+
+    There is a selection of "Hello" that is associated with a range, in this case the range is the text node containing the word "Hello".
+
+    We can modify the selection and expand or contract it, as well as collapse the selection, meaning that the caret will go to the beginning of the word "Hello".
+
+
+RANGE -> In its most basic definition, a Range is a pair of boundary points, a range-start and range-end. That might be collapsed (meaning range-start == range-end).
+
+Normally, a range is defined in the Node structure of the DOM, and gets all values from the nodes associated with it. Meaning that if I select a phrase, or piece of HTML, this will represent a Range that takes all nodes in the selection:
+
+In this example:
+
+    <p>Hola mundo</p>
+    <div>
+        <p>Aquí continúa el texto</p>
+    </div>
+
+Lets select all text:
+
+    <p>|Hola mundo</p>
+        <div>
+            <p>Aquí continúa el texto|</p>
+        </div>
+
+In this selection we have created a range that encompasses all nodes between the first P tag and the P tag inside the DIV container.
+
+The range we have then, will have a start at the first P tag and an end at the end of the second P tag inside the DIV container.
+
+We can expand or collapse, surround or remove these node elements using the Range methods to do so.
+
+//////////////////////////
+HOW TO USE WITH TEXT INPUT
+
+Say we need to remove a range and input it again using a different node type.
+
+<p>Hola mundo <i>|qué|</i> tal</p>
+
+Say we need to remove the italic node from the paragraph.
+
+First we get the selection: document.getSelection() - then the range on the selection getRangeAt(0).
+
+This will give us a range object like so:
+
+    range: {
+        textContent: 'qué',
+        commonAncestorContainer: <i>
+        startContainer: <i>,
+        startOffset: 0,
+        endContainer: <i>,
+        endOffset: 1
+    }
+
+There is a method called extractContents() or cloneContents() which takes all nodes inside the range and takes them into another documentFragment that can be used to be input again in the selection position.
+
+However we need to remove entirely the <i> tag.
+
+-We can extract the contents of the range selected in the <i> tag.
+
+-Then we can continue creating a new text node with the contents of the range extracted
+
+-Then we can use the range created and set the start on the selection anchor node and its end on the selection focus node, using the anchor offset and focus offset properties to position the range correctly using the selection attributes.
+
+-Then we remove all ranges from the selection and add the new range with the text data.
+
+
+
+ANOTHER POSIBILITY:
+
+In the event listener, we use the event to read each keystroke.
+
+When user hits a keystroke other than SPACE or ENTER we add to a Linked List 
